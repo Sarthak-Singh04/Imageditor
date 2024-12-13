@@ -17,9 +17,6 @@ importers:
       '@types/fabric':
         specifier: ^5.3.9
         version: 5.3.9
-      '@types/react-canvas-draw':
-        specifier: ^1.2.4
-        version: 1.2.4
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -63,6 +60,9 @@ importers:
       '@types/react':
         specifier: ^19
         version: 19.0.1
+      '@types/react-canvas-draw':
+        specifier: ^1.2.4
+        version: 1.2.4
       '@types/react-dom':
         specifier: ^19
         version: 19.0.2(@types/react@19.0.1)

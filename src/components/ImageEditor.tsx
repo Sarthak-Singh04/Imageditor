@@ -8,13 +8,24 @@ import { toast } from "react-hot-toast";
 import dynamic from 'next/dynamic';
 import CanvasDraw from 'react-canvas-draw';
 
+interface CanvasSize {
+  width: number;
+  height: number;
+}
+
+// Define a type for the canvas element we need to access
+interface ExtendedCanvasDraw extends CanvasDraw {
+  canvasContainer: HTMLDivElement;
+  clear: () => void;
+}
+
 const ImageEditor = () => {
-  const [brushSize, setBrushSize] = useState(20);
+  const [brushSize, setBrushSize] = useState<number>(20);
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [maskImage, setMaskImage] = useState<string | null>(null);
-  const canvasRef = useRef<any>(null);
+  const canvasRef = useRef<ExtendedCanvasDraw>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
+  const [canvasSize, setCanvasSize] = useState<CanvasSize>({ width: 800, height: 600 });
 
   useEffect(() => {
     const updateCanvasSize = () => {
@@ -61,8 +72,10 @@ const ImageEditor = () => {
     if (canvasRef.current) {
       try {
         // Get canvas data
-        const drawingCanvas = canvasRef.current.canvasContainer.children[1];
+        const drawingCanvas = canvasRef.current.canvasContainer.children[1] as HTMLCanvasElement;
         const context = drawingCanvas.getContext('2d');
+        if (!context) return;
+
         const imageData = context.getImageData(0, 0, drawingCanvas.width, drawingCanvas.height);
         const data = imageData.data;
 
@@ -71,6 +84,7 @@ const ImageEditor = () => {
         maskCanvas.width = drawingCanvas.width;
         maskCanvas.height = drawingCanvas.height;
         const maskContext = maskCanvas.getContext('2d');
+        if (!maskContext) return;
         
         // Fill with black background
         maskContext.fillStyle = 'black';
@@ -144,6 +158,7 @@ const ImageEditor = () => {
           <div id="canvas-container" className="border rounded-lg overflow-hidden bg-black">
             {originalImage && (
               <div style={{ position: 'relative', width: canvasSize.width, height: canvasSize.height }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={originalImage}
                   alt="Original"
@@ -156,7 +171,8 @@ const ImageEditor = () => {
                   }}
                 />
                 <CanvasDraw
-                  ref={canvasRef}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  ref={canvasRef as any}
                   brushColor="white"
                   backgroundColor="transparent"
                   brushRadius={brushSize / 2}
@@ -188,13 +204,23 @@ const ImageEditor = () => {
         <div>
           <h3 className="text-lg font-medium mb-2">Original Image</h3>
           {originalImage && (
-            <img src={originalImage} alt="Original" className="rounded-lg border w-full" />
+            // eslint-disable-next-line @next/next/no-img-element
+            <img 
+              src={originalImage} 
+              alt="Original" 
+              className="rounded-lg border w-full" 
+            />
           )}
         </div>
         <div>
           <h3 className="text-lg font-medium mb-2">Mask</h3>
           {maskImage && (
-            <img src={maskImage} alt="Mask" className="rounded-lg border w-full" />
+            // eslint-disable-next-line @next/next/no-img-element
+            <img 
+              src={maskImage} 
+              alt="Mask" 
+              className="rounded-lg border w-full" 
+            />
           )}
         </div>
       </div>
